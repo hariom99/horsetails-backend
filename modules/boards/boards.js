@@ -4,6 +4,7 @@ const createBoardRouter = express.Router();
 const boardDetailsRouter = express.Router();
 const createTask = express.Router();
 const removeTask = express.Router();
+const deleteBoard = express.Router();
 const verifyToken = require("../verifyToken");
 
 
@@ -15,6 +16,29 @@ const userBoards = [
         ]
     }
 ];
+
+deleteBoard.post("/", (req, res) => {
+    const token = req.body.token;
+    const boardId = req.body.boardId;
+    const { isLoggedIn, id } = verifyToken(token);
+    if (isLoggedIn) {
+        // res.send("hii")
+        userBoards.map((user) => {
+            if (user.userId === id) {
+                user.boards.map((board) => {
+                    if (board.boardId === boardId) {
+                        user.boards.splice(boardId, 1);
+                        res.send({ "boards": user.boards })
+                    }
+                })
+            }
+        });
+    }
+    else {
+        res.send("SESSION_EXPIRED");
+    }
+    // console.log("delete board request recieved");
+})
 
 
 removeTask.post("/", (req, res) => {
@@ -243,7 +267,7 @@ boardRouter.post("/", (req, res) => {
     }
 })
 
-module.exports = { boardRouter, createBoardRouter, boardDetailsRouter, createTask, removeTask };
+module.exports = { boardRouter, createBoardRouter, boardDetailsRouter, createTask, removeTask, deleteBoard };
 
 
 
